@@ -50,17 +50,24 @@ cp ccconfig/settings-deepseek.json ~/.claude/settings-deepseek.json
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
     "ANTHROPIC_AUTH_TOKEN": "sk-your-deepseek-key",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-chat",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-chat",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-chat"
+    "ANTHROPIC_MODEL": "deepseek-flash",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-flash[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-flash[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-flash",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-flash",
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432"
   },
-  "model": "deepseek-chat"
+  "model": "deepseek-flash[1m]",
+  "effortLevel": "max"
 }
 ```
 
 Details:
 
 - **`ANTHROPIC_DEFAULT_*_MODEL`** — Claude Code also makes background calls with its haiku-class model. If your default settings already map these env vars to another provider (e.g. GLM), the overlay must remap them too, or those calls hit the DeepSeek endpoint with a foreign model id and fail.
+- **`deepseek-flash[1m]`** — the `[1m]` suffix requests the 1M-token context variant of the model for the main conversation, while background/subagent calls stay on the plain `deepseek-flash`.
+- **`CLAUDE_CODE_AUTO_COMPACT_WINDOW`: `786432`** — with a 1M context you also want auto-compact to trigger later; this raises the effective window (768K) it compacts against instead of the default ~200K.
 - **Any Anthropic-compatible provider** works the same way — GLM/BigModel, Kimi, Qwen, a local gateway. One file plus one function each:
 
   ```bash
